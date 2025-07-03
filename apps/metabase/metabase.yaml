@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: metabase
+  name: metabase
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: metabase
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: metabase
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTS
+              value: -Xmx2g
+            - name: JAVA_TIMEZONE
+              value: Asia/Riyadh
+            - name: MB_DB_HOST
+              value: drnull-db
+            - name: MB_DB_PORT
+              value: "3306"
+            - name: MB_DB_TYPE
+              value: mysql
+            - name: TZ
+              value: Asia/Riyadh
+            - name: MB_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: metabase-secrets
+                  key: MB_DB_USER
+            - name: MB_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: metabase-secrets
+                  key: MB_DB_PASS
+          image: metabase/metabase:latest
+          name: metabase
+          ports:
+            - containerPort: 3000
+              hostPort: 9014
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /metabase-data
+              name: metabase-storage
+            - mountPath: /etc/localtime
+              name: host-localtime
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: metabase-storage
+          persistentVolumeClaim:
+            claimName: metabase-pvc
+        - name: host-localtime
+          hostPath:
+            path: /etc/localtime
+            type: File

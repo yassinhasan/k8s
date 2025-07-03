@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: portainer
+  name: portainer
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: portainer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: portainer
+    spec:
+      containers:
+        - args:
+            - --no-analytics
+          env:
+            - name: TZ
+              value: Asia/Riyadh
+          image: portainer/portainer-ce
+          name: portainer
+          ports:
+            - containerPort: 9000
+              hostPort: 9000
+              protocol: TCP
+            - containerPort: 8000
+              hostPort: 8000
+              protocol: TCP
+            - containerPort: 9443
+              hostPort: 9443
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/run/docker.sock
+              name: portainer-hostpath0
+            - mountPath: /data
+              name: portainer-hostpath1
+            - mountPath: /etc/localtime
+              name: portainer-hostpath2
+              readOnly: true
+            - mountPath: /etc/timezone
+              name: portainer-hostpath3
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /var/run/docker.sock
+          name: portainer-hostpath0
+        - hostPath:
+            path: /srv/docker/portainer
+          name: portainer-hostpath1
+        - hostPath:
+            path: /etc/localtime
+          name: portainer-hostpath2
+        - hostPath:
+            path: /etc/timezone
+          name: portainer-hostpath3
+status: {}

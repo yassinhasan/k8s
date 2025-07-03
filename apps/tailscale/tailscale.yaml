@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: tailscale
+  name: tailscale
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: tailscale
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: tailscale
+    spec:
+      containers:
+        - args:
+            - tailscaled
+          env:
+            - name: TAILSCALE_ACCEPT_DNS
+              value: "true"
+            - name: TAILSCALE_ADVERTISE_ROUTES
+              value: 192.168.1.1/24
+            - name: TAILSCALE_HOSTNAME
+              value: server
+            - name: TAILSCALE_NET
+              value: 192.168.1.0/24
+            - name: TZ
+              value: Asia/Riyadh
+          image: tailscale/tailscale
+          name: tailscale
+          resources: {}
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+            privileged: true
+          volumeMounts:
+            - mountPath: /var/lib/tailscale
+              name: tailscale-hostpath0
+            - mountPath: /etc/tailscale
+              name: tailscale-hostpath1
+            - mountPath: /etc/systemd/system/99-tailscale.conf
+              name: tailscale-hostpath2
+            - mountPath: /dev/net/tun
+              name: tailscale-hostpath3
+      hostname: server
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /srv/docker/tailscale/state
+          name: tailscale-hostpath0
+        - hostPath:
+            path: /srv/docker/tailscale/config
+          name: tailscale-hostpath1
+        - hostPath:
+            path: /srv/docker/tailscale/config/99-tailscale.conf
+          name: tailscale-hostpath2
+        - hostPath:
+            path: /dev/net/tun
+          name: tailscale-hostpath3
+status: {}

@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: vscode
+  name: vscode
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: vscode
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: vscode
+    spec:
+      containers:
+        - env:
+            - name: PATH
+              value: /home/coder/.gcloud/google-cloud-sdk/bin:/home/coder/.firebase/node_modules/.bin:/home/coder/.npm-global/bin:/home/hasan/.cursor-server/bin/5b19bac7a947f54e4caa3eb7e4c5fbf832389850/bin/remote-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files (x86)/VMware/VMware Workstation/bin/:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/java8path:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/smsmh/AppData/Local/Programs/Python/Launcher/py:/mnt/c/Program Files (x86)/Google/Cloud SDK/google-cloud-sdk/bin:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files/dotnet/:/mnt/c/Users/smsmh/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Program Files/Cloudflare/Cloudflare WARP/:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/PuTTY/:/mnt/c/Users/smsmh/AppData/Local/Programs/Python/Launcher/:/mnt/c/Users/smsmh/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/smsmh/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/smsmh/AppData/Roaming/npm:/mnt/c/Users/smsmh/AppData/Local/Programs/cursor/resources/app/bin
+            - name: PGID
+              value: "33"
+            - name: PUID
+              value: "1000"
+            - name: TZ
+              value: Asia/Riyadh
+            - name: UMASK
+              value: "0002"
+            - name: XDG_CONFIG_HOME
+              value: /home/coder/.config
+            - name: XDG_DATA_HOME
+              value: /home/coder/.local/share
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vscode-secrets
+                  key: VSCODE_PASSWORD
+            - name: SUDO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vscode-secrets
+                  key: VSCODE_SUDO_PASSWORD 
+          image: vscode
+          name: vscode
+          ports:
+            - containerPort: 8080
+              hostPort: 9011
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /home/coder/.local/share/code-server
+              name: vscode-data-storage
+            - mountPath: /home/coder/.cache
+              name: vscode-cache-storage
+            - mountPath: /home/coder/.local/share/code-server/logs
+              name: vscode-logs-storage
+            - mountPath: /home/coder/.ssh
+              name: vscode-ssh-storage
+            - mountPath: /home/coder/.config
+              name: vscode-config-storage
+            - mountPath: /home/coder/workspace
+              name: vscode-workspace-storage
+            - mountPath: /home/coder/.npm-global
+              name: vscode-npm-global-storage
+            - mountPath: /home/coder/.gcloud
+              name: vscode-gcloud-storage
+            - mountPath: /home/coder/.firebase
+              name: vscode-firebase-storage
+            - mountPath: /srv/share
+              name: vscode-share-storage
+            - mountPath: /home/coder/.local/share/code-server/copilot
+              name: vscode-copilot-storage
+            - mountPath: /home/coder/.local/share/code-server/extensions
+              name: vscode-extensions-storage
+            - mountPath: /home/coder/.codeium
+              name: vscode-codeium-storage
+            - mountPath: /etc/localtime
+              name: host-localtime
+              readOnly: true
+            - mountPath: /etc/timezone
+              name: host-timezone
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: vscode-data-storage
+          persistentVolumeClaim:
+            claimName: vscode-data-pvc
+        - name: vscode-cache-storage
+          persistentVolumeClaim:
+            claimName: vscode-cache-pvc
+        - name: vscode-logs-storage
+          persistentVolumeClaim:
+            claimName: vscode-logs-pvc
+        - name: vscode-ssh-storage
+          persistentVolumeClaim:
+            claimName: vscode-ssh-pvc

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: glances
+  name: glances
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: glances
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: glances
+    spec:
+      containers:
+        - env:
+            - name: GLANCES_OPT
+              value: -w -p 9016
+            - name: TZ
+              value: Asia/Riyadh
+          image: nicolargo/glances:latest-full
+          name: glances
+          ports:
+            - containerPort: 9016
+              hostPort: 9016
+              protocol: TCP
+          resources: {}
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /var/run/docker.sock
+              name: glances-hostpath0
+              readOnly: true
+            - mountPath: /run/user/1000/podman/podman.sock
+              name: glances-hostpath1
+              readOnly: true
+            - mountPath: /etc/os-release
+              name: glances-hostpath2
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /var/run/docker.sock
+          name: glances-hostpath0
+        - hostPath:
+            path: /run/user/1000/podman/podman.sock
+          name: glances-hostpath1
+        - hostPath:
+            path: /etc/os-release
+          name: glances-hostpath2
+status: {}

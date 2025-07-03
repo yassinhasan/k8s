@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: pyload
+  name: pyload
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: pyload
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: pyload
+    spec:
+      containers:
+        - env:
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: PYLOAD_WEBINTERFACE_PASSWORD
+              value: qwe@123
+            - name: PYLOAD_WEBINTERFACE_USERNAME
+              value: hasan
+            - name: TZ
+              value: Asia/Riyadh
+          image: mobilistics/pyload
+          name: pyload
+          ports:
+            - containerPort: 8000
+              hostPort: 9002
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /opt/pyload/pyload-config
+              name: pyload-config-storage
+            - mountPath: /opt/pyload/Downloads
+              name: pyload-downloads-storage
+            - mountPath: /etc/localtime
+              name: host-localtime
+              readOnly: true
+            - mountPath: /etc/timezone
+              name: host-timezone
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: pyload-config-storage
+          persistentVolumeClaim:
+            claimName: pyload-config-pvc
+        - name: pyload-downloads-storage
+          persistentVolumeClaim:
+            claimName: pyload-downloads-pvc
+        - name: host-localtime
+          hostPath:
+            path: /etc/localtime
+            type: File
+        - name: host-timezone
+          hostPath:
+            path: /etc/timezone
+            type: File

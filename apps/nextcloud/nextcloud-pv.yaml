@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nextcloud-pv-0 # This PV's name
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce # Make sure your host path supports this
+  # This PV does not use a StorageClass for dynamic provisioning.
+  # It will be explicitly bound by a PVC that specifies volumeName.
+  storageClassName: ""
+  hostPath:
+    # Changed path for clarity, assuming this is where Nextcloud data will live on the host
+    path: /srv/data/nextcloud-data
+    type: DirectoryOrCreate # Kubernetes will create this directory if it doesn't exist

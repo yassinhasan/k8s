@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: drnull-image
+  name: drnull-image
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: drnull-image
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: drnull-image
+    spec:
+      containers:
+        - env:
+            - name: FLASK_ENV
+              value: production
+            - name: PYTHONPATH
+              value: /app/server/src
+            - name: TZ
+              value: Asia/Riyadh
+          image: drnull-image:latest
+          name: drnull-app
+          ports:
+            - containerPort: 8080
+              hostPort: 9006
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /app
+              name: drnull-image-hostpath0
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /srv/share/cloud
+          name: drnull-image-hostpath0
+status: {}

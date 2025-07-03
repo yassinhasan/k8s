@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: kali
+  name: kali
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: kali
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: kali
+    spec:
+      containers:
+        - env:
+            - name: TZ
+              value: Asia/Riyadh
+          image: kali
+          name: kali
+          ports:
+            - containerPort: 22
+              hostPort: 2021
+              protocol: TCP
+          resources: {}
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - SYS_ADMIN
+          volumeMounts:
+            - mountPath: /root
+              name: kali-hostpath0
+            - mountPath: /etc/localtime
+              name: kali-hostpath1
+              readOnly: true
+            - mountPath: /etc/timezone
+              name: kali-hostpath2
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /srv/docker/kali/data
+          name: kali-hostpath0
+        - hostPath:
+            path: /etc/localtime
+          name: kali-hostpath1
+        - hostPath:
+            path: /etc/timezone
+          name: kali-hostpath2
+status: {}

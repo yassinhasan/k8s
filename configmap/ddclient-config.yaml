@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ddclient-config
+  namespace: homelab
+data:
+  ddclient.conf: |
+    daemon=300
+    syslog=yes
+    pid=/var/run/ddclient.pid
+    ssl=yes
+    protocol=namecheap
+    server=dynamicdns.park-your-domain.com
+    login=drnull.site
+    password=${DDCLIENT_PASSWORD}
+    wildcard=YES
+    @,*,www,drnull.site

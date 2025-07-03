@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: syncthing
+  name: syncthing
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: syncthing
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: syncthing
+    spec:
+      containers:
+        - env:
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: SYNCTHING_RECEIVE_FOLDER
+              value: /shared-folder/incoming
+            - name: TZ
+              value: Asia/Riyadh
+          image: linuxserver/syncthing
+          name: syncthing
+          ports:
+            - containerPort: 8384
+              hostPort: 9003
+              protocol: TCP
+            - containerPort: 22000
+              hostPort: 22000
+              protocol: TCP
+            - containerPort: 21027
+              hostPort: 21027
+              protocol: UDP
+            - containerPort: 22067
+              hostPort: 22067
+              protocol: UDP
+            - containerPort: 22070
+              hostPort: 22070
+              protocol: TCP
+            - containerPort: 22070
+              hostPort: 22070
+              protocol: UDP
+          resources:
+            limits:
+              cpu: "2"
+              memory: "3221225472"
+          volumeMounts:
+            - mountPath: /config
+              name: syncthing-hostpath0
+            - mountPath: /data
+              name: syncthing-hostpath1
+            - mountPath: /shared-folder
+              name: syncthing-hostpath2
+            - mountPath: /etc/localtime
+              name: syncthing-hostpath3
+              readOnly: true
+            - mountPath: /etc/timezone
+              name: syncthing-hostpath4
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /srv/docker/syncthing/config
+          name: syncthing-hostpath0
+        - hostPath:
+            path: /srv/data
+          name: syncthing-hostpath1
+        - hostPath:
+            path: /srv/share
+          name: syncthing-hostpath2
+        - hostPath:
+            path: /etc/localtime
+          name: syncthing-hostpath3
+        - hostPath:
+            path: /etc/timezone
+          name: syncthing-hostpath4
+status: {}

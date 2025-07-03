@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: jupyter
+  name: jupyter
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: jupyter
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: jupyter
+    spec:
+      containers:
+        - env:
+            - name: GRANT_SUDO
+              value: "yes"
+            - name: TZ
+              value: Asia/Riyadh
+            - name: JUPYTER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: jupyter-secrets
+                  key: JUPYTER_TOKEN
+          image: jupyter/datascience-notebook:latest
+          name: jupyter
+          ports:
+            - containerPort: 8888
+              hostPort: 9012
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /home/jovyan/work
+              name: jupyter-storage
+            - mountPath: /etc/localtime
+              name: host-localtime
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: jupyter-storage
+          persistentVolumeClaim:
+            claimName: jupyter-pvc
+        - name: host-localtime
+          hostPath:
+            path: /etc/localtime
+            type: File

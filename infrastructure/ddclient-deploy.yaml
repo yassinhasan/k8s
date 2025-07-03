@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ddclient
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ddclient
+  template:
+    spec:
+      containers:
+      - name: ddclient
+        image: linuxserver/ddclient
+        env:
+        - name: DDCLIENT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ddclient-secrets
+              key: password
+        volumeMounts:
+        - name: config
+          mountPath: /config
+      volumes:
+      - name: config
+        configMap:
+          name: ddclient-config

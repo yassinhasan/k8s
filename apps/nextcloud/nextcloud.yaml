@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: nextcloud
+  name: nextcloud
+  namespace: homelab # Ensure this namespace exists in your cluster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: nextcloud
+  strategy:
+    type: Recreate # Good for single-replica apps that rely on hostPath
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true" # Keep your existing labels
+        io.kompose.service: nextcloud
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_DATABASE
+              value: nextcloud
+            - name: MYSQL_HOST
+              value: nextcloud-db # Ensure this service exists and points to your MySQL/MariaDB
+            - name: MYSQL_PASSWORD
+              value: nextcloud
+            - name: MYSQL_USER
+              value: nextcloud
+            - name: NEXTCLOUD_TRUSTED_DOMAINS
+              value: 192.168.1.20 localhost 127.0.0.1 nc.drnull.site
+            - name: TZ
+              value: Asia/Riyadh
+          image: nextcloud:latest # Use a specific tag like nextcloud:27 or nextcloud:latest
+          name: nextcloud
+          ports:
+            - containerPort: 80
+              hostPort: 9004 # Be cautious with hostPort in production; use a Service and Ingress instead
+              protocol: TCP
+          resources: {} # Define resource requests/limits for stability
+          volumeMounts:
+            # Mount the main Nextcloud data directory using the PVC
+            - mountPath: /var/www/html/data
+              name: nextcloud-data-volume # This name links to the volume defined below
+            # Mount host's localtime for timezone synchronization
+            - mountPath: /etc/localtime
+              name: host-localtime # Unique name for this volume mount
+              readOnly: true
+            # Mount host's timezone for timezone synchronization
+            - mountPath: /etc/timezone
+              name: host-timezone # Unique name for this volume mount
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        # Define the volume that uses your PersistentVolumeClaim
+        - name: nextcloud-data-volume # This name matches the volumeMount above
+          persistentVolumeClaim:
+            claimName: nextcloud-pvc-0 # References your PVC
+        # Define the hostPath volume for localtime
+        - name: host-localtime
+          hostPath:
+            path: /etc/localtime
+            type: FileOrCreate # Ensures the file exists, if not, creates an empty one
+        # Define the hostPath volume for timezone
+        - name: host-timezone
+          hostPath:
+            path: /etc/timezone
+            type: FileOrCreate # Ensures the file exists, if not, creates an empty one

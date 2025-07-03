@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: glances
+  name: glances
+  namespace: homelab
+spec:
+  ports:
+    - name: "9016"
+      port: 9016
+      targetPort: 9016
+  selector:
+    io.kompose.service: glances
+status:
+  loadBalancer: {}

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: pgadmin
+  name: pgadmin
+  namespace: homelab
+spec:
+  ports:
+    - name: "9013"
+      port: 9013
+      targetPort: 80
+  selector:
+    io.kompose.service: pgadmin
+status:
+  loadBalancer: {}

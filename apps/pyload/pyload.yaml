@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: pyload
+  name: pyload
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: pyload
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: pyload
+    spec:
+      containers:
+        - env:
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: PYLOAD_WEBINTERFACE_PASSWORD
+              value: qwe@123
+            - name: PYLOAD_WEBINTERFACE_USERNAME
+              value: hasan
+            - name: TZ
+              value: Asia/Riyadh
+          image: mobilistics/pyload
+          name: pyload
+          ports:
+            - containerPort: 8000
+              hostPort: 9002
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /opt/pyload/pyload-config
+              name: pyload-hostpath0
+            - mountPath: /opt/pyload/Downloads
+              name: pyload-hostpath1
+            - mountPath: /etc/localtime
+              name: pyload-hostpath2
+              readOnly: true
+            - mountPath: /etc/timezone
+              name: pyload-hostpath3
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /srv/docker/pyload
+          name: pyload-hostpath0
+        - hostPath:
+            path: /srv/data/pyload
+          name: pyload-hostpath1
+        - hostPath:
+            path: /etc/localtime
+          name: pyload-hostpath2
+        - hostPath:
+            path: /etc/timezone
+          name: pyload-hostpath3
+status: {}

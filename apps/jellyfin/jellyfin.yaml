@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: jellyfin
+  annotations:
+    traefik.ingress.kubernetes.io/service-upgrade: "true"
+  name: jellyfin
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: jellyfin
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hasan-mynetwork: "true"
+        io.kompose.service: jellyfin
+    spec:
+      containers:
+        - env:
+            - name: JELLYFIN_PublishedServerUrl
+              value: https://jf.drnull.site/
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: TZ
+              value: Asia/Riyadh
+          image: jellyfin/jellyfin
+          name: jellyfin
+          ports:
+            - containerPort: 8096
+              hostPort: 9001
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /config
+              name: jellyfin-storage
+              subPath: config
+            - mountPath: /cache
+              name: jellyfin-storage
+              subPath: cache
+            - mountPath: /media
+              name: media-storage
+            - mountPath: /etc/localtime
+              name: host-localtime
+              readOnly: true
+            - mountPath: /etc/timezone
+              name: host-timezone
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: jellyfin-storage
+          persistentVolumeClaim:
+            claimName: jellyfin-pvc
+        - name: media-storage
+          hostPath:
+            path: /srv/data/jellyfin
+            type: Directory
+        - name: host-localtime
+          hostPath:
+            path: /etc/localtime
+            type: File
+        - name: host-timezone
+          hostPath:
+            path: /etc/timezone
+            type: File
