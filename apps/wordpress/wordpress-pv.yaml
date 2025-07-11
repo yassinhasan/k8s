@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: nextcloud-pv # This PV's name
+  name: wordpress-pv # This PV's name
 spec:
   capacity:
     storage: 4Gi
@@ -11,6 +11,6 @@ spec:
   # It will be explicitly bound by a PVC that specifies volumeName.
   storageClassName: ""
   hostPath:
-    # Changed path for clarity, assuming this is where Nextcloud data will live on the host
-    path: /srv/data/nextcloud-data
+    # Changed path for clarity, assuming this is where wordpress data will live on the host
+    path: /srv/share/wordpress
     type: DirectoryOrCreate # Kubernetes will create this directory if it doesn't exist

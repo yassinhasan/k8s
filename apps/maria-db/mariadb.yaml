@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mariadb
+  name: mariadb
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  strategy:
+    type: Recreate # Correct for stateful databases to ensure data integrity
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: mariadb:10.11 # Using a specific version for stability
+        env:
+        # Essential environment variables for MariaDB setup
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secrets
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_DATABASE # Optional: MariaDB will create this database on first run
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secrets
+              key: MYSQL_DATABASE
+        - name: MYSQL_USER # Optional: MariaDB will create this user on first run
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secrets
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD # Optional: Password for the MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secrets
+              key: MYSQL_PASSWORD
+        ports:
+        - containerPort: 3306 # Standard MariaDB port
+          name: mysql
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        volumeMounts:
+        - mountPath: /var/lib/mysql # Persistent storage for database files
+          name: mariadb-data
+        # Liveness probe to check if the container is running and healthy
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 60 # Give time for the database to start
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+        # Readiness probe to check if the container is ready to serve requests
+        readinessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 30 # Shorter initial delay as it's for readiness
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+      volumes:
+      - name: mariadb-data
+        persistentVolumeClaim:
+          claimName: mariadb-pvc # References your PersistentVolumeClaim

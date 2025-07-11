@@ -2,28 +2,27 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    io.kompose.service: phpmyadmin
+    app: phpmyadmin
   name: phpmyadmin
   namespace: homelab
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: phpmyadmin
+      app: phpmyadmin
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        io.kompose.network/hasan-mynetwork: "true"
-        io.kompose.service: phpmyadmin
+        app: phpmyadmin
     spec:
       containers:
         - env:
             - name: PMA_ARBITRARY
               value: "1"
             - name: PMA_HOST
-              value: drnull-db
+              value: "mariadb.homelab.svc.cluster.local"  # Full service DNS
             - name: PMA_PORT
               value: "3306"
             - name: MYSQL_USER
@@ -45,15 +44,6 @@ spec:
           name: phpmyadmin
           ports:
             - containerPort: 80
-              hostPort: 9009
               protocol: TCP
           resources: {}
-          volumeMounts:
-            - mountPath: /usr/local/etc/php/conf.d/uploads.ini
-              name: phpmyadmin-hostpath0
       restartPolicy: Always
-      volumes:
-        - hostPath:
-            path: /srv/docker/phpmyadmin/custom-php.ini
-          name: phpmyadmin-hostpath0
-status: {}

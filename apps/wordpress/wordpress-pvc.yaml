@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nextcloud-pvc # This PVC's name
+  name: wordpress-pvc # This PVC's name
   namespace: homelab # Ensure this matches your Deployment's namespace
 spec:
-  volumeName: nextcloud-pv # Explicitly binds to nextcloud-pv-0
+  volumeName: wordpress-pv # Explicitly binds to nextcloud-pv-0
   accessModes:
     - ReadWriteOnce
   resources:
