@@ -1,0 +1,16 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nextcloud-redirect
+  namespace: homelab
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`nc.drnull.site`)
+      kind: Rule
+      services:
+        - name: nextcloud
+          port: 80
+      middlewares:
+        - name: redirect-https
