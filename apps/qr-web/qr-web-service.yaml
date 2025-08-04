@@ -1,16 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    io.kompose.service: qr-web
   name: qr-web
   namespace: homelab
 spec:
+  type: NodePort
   ports:
-    - name: "9008"
-      port: 9008
+    - port: 80
       targetPort: 80
+      nodePort: 31080
   selector:
-    io.kompose.service: qr-web
-status:
-  loadBalancer: {}
+    app: qr-web

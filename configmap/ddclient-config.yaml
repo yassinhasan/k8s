@@ -12,6 +12,7 @@ data:
     protocol=namecheap
     server=dynamicdns.park-your-domain.com
     login=drnull.site
-    password=${DDCLIENT_PASSWORD}
+    password=d4c93759447740b5ba4a5fdd5d39461e
     wildcard=YES
-    @,*,www,drnull.site
+    use=web, web=ifconfig.me
+    @,drnull.site

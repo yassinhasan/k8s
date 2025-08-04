@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: npm-data-pvc # This PVC's name
+  namespace: homelab # Ensure this matches your Deployment's namespace
+spec:
+  volumeName: npm-data-pv # Explicitly binds to the PV named 'npm-data-pv'
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: "" # Explicitly no dynamic provisioning (matches PV)
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: npm-letsencrypt-pvc # This PVC's name
+  namespace: homelab # Ensure this matches your Deployment's namespace
+spec:
+  volumeName: npm-letsencrypt-pv # Explicitly binds to the PV named 'npm-letsencrypt-pv'
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: "" # Explicitly no dynamic provisioning (matches PV)

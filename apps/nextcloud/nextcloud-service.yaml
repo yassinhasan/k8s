@@ -4,24 +4,10 @@ metadata:
   name: nextcloud
   namespace: homelab
 spec:
-  type: NodePort       # Override ClusterIP
+  type: NodePort
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 31000 # Access via <NODE_IP>:31000
+      nodePort: 30084
   selector:
     app: nextcloud
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   labels:
-#     app: nextcloud
-#   name: nextcloud
-#   namespace: homelab
-# spec:
-#   ports:
-#     - name: "9004"
-#       port: 9004
-#       targetPort: 80
-#   selector:
-#     app: nextcloud

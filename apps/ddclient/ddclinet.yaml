@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ddclient
+  namespace: homelab
+  labels:
+    app: ddclient
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ddclient
+  template:
+    metadata:
+      labels:
+        app: ddclient
+    spec:
+      containers:
+      - name: ddclient
+        image: alpine:latest
+        # Corrected: Use ["/bin/sh", "-c"] for multiline script execution
+        command: ["/bin/sh", "-c"]
+        args:
+          - | # This indicates a multi-line string for the shell script
+            # Update apk cache and install ddclient
+            apk update && apk add --no-cache ddclient || { echo "ERROR: ddclient installation failed!"; exit 1; }
+            
+            # Locate ddclient binary after installation
+            DDCLIENT_BIN=$(which ddclient)
+            if [ -z "$DDCLIENT_BIN" ]; then
+              echo "ERROR: ddclient binary not found after installation!"
+              exit 1
+            fi
+            
+            # Substitute password from environment variable into config file
+            # Use double backslash to escape the dollar sign for sed's pattern match,
+            # and direct variable expansion for the actual password value.
+            sed "s/\\\$DDCLIENT_PASSWORD/$DDCLIENT_PASSWORD/g" /config/ddclient.conf > /tmp/ddclient.conf || { echo "ERROR: failed to create ddclient.conf in /tmp!"; exit 1; }
+            
+            # Run ddclient in foreground mode.
+            # With 'daemon=300' in ddclient.conf, it should run in a loop, updating every 300 seconds.
+            "$DDCLIENT_BIN" -foreground -verbose -noquiet -file /tmp/ddclient.conf || { echo "ERROR: ddclient command failed!"; exit 1; }
+            
+            # IMPORTANT: Add a final infinite loop to ensure the container stays running
+            # even if ddclient process exits unexpectedly after its initial run.
+            # This prevents Kubernetes from restarting the pod in a crash loop
+            # and allows you to continuously view logs.
+            while true; do sleep 300; done
+        env:
+        - name: DDCLIENT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ddclient-secret
+              key: DDCLIENT_PASSWORD
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+      volumes:
+      - name: config
+        configMap:
+          name: ddclient-config
+          items:
+          - key: ddclient.conf
+            path: ddclient.conf

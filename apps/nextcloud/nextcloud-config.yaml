@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-config
+data:
+  config.php: |
+    <?php
+    $CONFIG = array (
+      "htaccess.RewriteBase" => "/",
+      "memcache.local" => "\\OC\\Memcache\\APCu",
+      "apps_paths" => array (
+        array (
+          "path" => "/var/www/html/apps",
+          "url" => "/apps",
+          "writable" => false,
+        ),
+        array (
+          "path" => "/var/www/html/custom_apps",
+          "url" => "/custom_apps",
+          "writable" => true,
+        ),
+      ),
+      "trusted_domains" => array (
+        0 => "nc.drnull.site",
+        1 => "localhost",
+        2 => "localhost:30084",
+        3 => "$(hostname -i)"
+      ),
+      "datadirectory" => "/var/www/html/data",
+      "dbtype" => "mysql",
+      "overwrite.cli.url" => "https://nc.drnull.site",
+      "overwritehost" => "nc.drnull.site",
+      "overwriteprotocol" => "https",
+      "overwritewebroot" => "/",
+      "overwritecondaddr" => "^10\\.42\\..*$",
+      "dbname" => "nextcloud",
+      "dbhost" => "mariadb.homelab.svc.cluster.local:3306",
+      "dbuser" => "nextcloud",
+      "dbpassword" => "wB[W<9-;EvQv]Q@)Y{8QqRbVnk%.35",
+      "installed" => true,
+      
+    );
+    @ini_set('display_errors', 1);
+    @ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);

@@ -11,5 +11,5 @@ spec:
   storageClassName: ""
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /srv/share
+    path: /srv/sync
     type: DirectoryOrCreate

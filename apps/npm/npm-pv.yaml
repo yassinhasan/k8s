@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: npm-data-pv # This PV's name
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce # Make sure your host path supports this
+  # This PV does not use a StorageClass for dynamic provisioning.
+  # It will be explicitly bound by a PVC that specifies volumeName.
+  storageClassName: "" # Explicitly no dynamic provisioning
+  hostPath:
+    # This path must exist on your Kubernetes node(s) where the pod will run
+    # and be writable by the container's user.
+    path: /srv/data/npm-data
+    type: DirectoryOrCreate # Kubernetes will create this directory if it doesn't exist
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: npm-letsencrypt-pv # This PV's name
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce # Make sure your host path supports this
+  # This PV does not use a StorageClass for dynamic provisioning.
+  # It will be explicitly bound by a PVC that specifies volumeName.
+  storageClassName: "" # Explicitly no dynamic provisioning
+  hostPath:
+    # This path must exist on your Kubernetes node(s) where the pod will run
+    # and be writable by the container's user.
+    path: /srv/data/npm-letsencrypt
+    type: DirectoryOrCreate # Kubernetes will create this directory if it doesn't exist
+

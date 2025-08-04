@@ -2,21 +2,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    io.kompose.service: syncthing
+    app: syncthing
   name: syncthing
   namespace: homelab
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: syncthing
+      app: syncthing
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        io.kompose.network/hasan-mynetwork: "true"
-        io.kompose.service: syncthing
+        app: syncthing
     spec:
       containers:
         - env:
@@ -32,27 +31,24 @@ spec:
           name: syncthing
           ports:
             - containerPort: 8384
-              hostPort: 9003
               protocol: TCP
             - containerPort: 22000
-              hostPort: 22000
               protocol: TCP
             - containerPort: 21027
-              hostPort: 21027
               protocol: UDP
             - containerPort: 22067
-              hostPort: 22067
               protocol: UDP
             - containerPort: 22070
-              hostPort: 22070
               protocol: TCP
             - containerPort: 22070
-              hostPort: 22070
               protocol: UDP
           resources:
-            limits:
-              cpu: "2"
-              memory: "3221225472"
+              requests:
+                cpu: "3"
+                memory: "3Gi"
+              limits:
+                cpu: "3"
+                memory: "3Gi"   
           volumeMounts:
             - mountPath: /config
               name: syncthing-config-storage

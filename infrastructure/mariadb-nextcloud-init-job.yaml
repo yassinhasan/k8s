@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mariadb-nextcloud-init
+  namespace: homelab
+spec:
+  template:
+    spec:
+      containers:
+      - name: mariadb-init
+        image: mariadb:10.6
+        command: ["mysql"]
+        args:
+        - "-h"
+        - "mariadb.homelab.svc.cluster.local"
+        - "-P"
+        - "3306"
+        - "-u"
+        - "root"
+        - "-p@Ha36113611"
+        - "-e"
+        - |
+          CREATE DATABASE IF NOT EXISTS nextcloud;
+          GRANT ALL PRIVILEGES ON nextcloud.* TO 'hasan'@'%';
+          FLUSH PRIVILEGES;
+          SELECT 'Nextcloud database setup completed successfully' AS status;
+      restartPolicy: OnFailure
+      serviceAccountName: default 

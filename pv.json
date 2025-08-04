@@ -1,0 +1,45 @@
+{
+    "apiVersion": "v1",
+    "kind": "PersistentVolume",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"PersistentVolume\",\"metadata\":{\"annotations\":{},\"name\":\"syncthing-share-pv\"},\"spec\":{\"accessModes\":[\"ReadWriteOnce\"],\"capacity\":{\"storage\":\"100Gi\"},\"hostPath\":{\"path\":\"/srv/share\",\"type\":\"DirectoryOrCreate\"},\"persistentVolumeReclaimPolicy\":\"Retain\",\"storageClassName\":\"\"}}\n",
+            "pv.kubernetes.io/bound-by-controller": "yes"
+        },
+        "creationTimestamp": "2025-07-19T10:30:57Z",
+        "deletionGracePeriodSeconds": 0,
+        "deletionTimestamp": "2025-07-19T10:41:41Z",
+        "finalizers": [
+            "kubernetes.io/pv-protection"
+        ],
+        "name": "syncthing-share-pv",
+        "resourceVersion": "505514",
+        "uid": "88df8cd4-f9bb-4e1b-ae93-0b65766c1f2a"
+    },
+    "spec": {
+        "accessModes": [
+            "ReadWriteOnce"
+        ],
+        "capacity": {
+            "storage": "100Gi"
+        },
+        "claimRef": {
+            "apiVersion": "v1",
+            "kind": "PersistentVolumeClaim",
+            "name": "syncthing-share-pvc",
+            "namespace": "homelab",
+            "resourceVersion": "505084",
+            "uid": "de034223-222e-423b-a3a6-237e5460677a"
+        },
+        "hostPath": {
+            "path": "/srv/share",
+            "type": "DirectoryOrCreate"
+        },
+        "persistentVolumeReclaimPolicy": "Retain",
+        "volumeMode": "Filesystem"
+    },
+    "status": {
+        "lastPhaseTransitionTime": "2025-07-19T10:30:58Z",
+        "phase": "Bound"
+    }
+}

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tailscale-auth
+  namespace: kube-system
+type: Opaque
+stringData:
+  TS_AUTHKEY: "tskey-auth-kv6KT6upBq11CNTRL-2wbtGVZxXrBtzhQ41XNFsBGKfN5fnEyu" 

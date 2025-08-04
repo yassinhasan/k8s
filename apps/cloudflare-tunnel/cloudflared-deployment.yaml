@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      containers:
+        - name: cloudflared
+          image: cloudflare/cloudflared:latest
+          args:
+            - tunnel
+            - --no-autoupdate
+            - run
+            - --token
+            - eyJhIjoiZjE2ZTkzNThhYjZmNDE5NGFhMWYxMDVmZjM0ZWY5NjIiLCJ0IjoiMGIwOWYxMzUtMGQ4Yi00Yzc1LWE4NTktYWZmM2RhYTE1YmY2IiwicyI6IlpHRTVOV1kwTmpVdFpqRmxaaTAwTlRObUxXSmxNREF0Tm1ReVkyTXpaakU0WXpaaCJ9
+          ports:
+            - containerPort: 2000
+              name: tunnel
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudflared
+  namespace: homelab
+spec:
+  type: ClusterIP
+  ports:
+    - port: 2000
+      targetPort: 2000
+      protocol: TCP
+  selector:
+    app: cloudflared 

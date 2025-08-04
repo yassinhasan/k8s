@@ -1,0 +1,3 @@
+#first add depolyment and service and pv and pvc 
+#then from service you get name of service and ip of pod target ip  
+# then in cloudflare you add in tunnel then puplic hosts like wp drnull.site and in service type http and url "wordpress.homelab.svc.cluster.local:80" like this 

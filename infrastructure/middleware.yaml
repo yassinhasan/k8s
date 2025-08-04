@@ -1,9 +1,10 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: redirect-https
+  name: acme-exempt
   namespace: homelab
 spec:
-  redirectScheme:
-    scheme: https
-    permanent: true
+  stripPrefix:
+    prefixes:
+      - /.well-known/acme-challenge
+    forceSlash: false

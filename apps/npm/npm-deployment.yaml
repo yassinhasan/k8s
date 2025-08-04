@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: npm
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: npm
+  template:
+    metadata:
+      labels:
+        app: npm
+    spec:
+      # hostNetwork: true # Enable host networking to bind to host ports directly
+      containers:
+        - name: npm
+          image: jc21/nginx-proxy-manager:latest
+          ports:
+            - containerPort: 80
+            - containerPort: 81
+            - containerPort: 443
+          volumeMounts:
+            - name: npm-data
+              mountPath: /data
+            - name: npm-letsencrypt
+              mountPath: /etc/letsencrypt
+      volumes:
+        - name: npm-data
+          persistentVolumeClaim: # Changed from emptyDir
+            claimName: npm-data-pvc # Reference the PVC by its name
+        - name: npm-letsencrypt
+          persistentVolumeClaim: # Changed from emptyDir
+            claimName: npm-letsencrypt-pvc # Reference the PVC by its name

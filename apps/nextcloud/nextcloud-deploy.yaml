@@ -17,6 +17,8 @@ spec:
       - name: nextcloud
         image: nextcloud:latest
         env:
+        - name: APACHE_SERVERNAME
+          value: "nc.drnull.site"
         - name: MYSQL_HOST
           value: "mariadb.homelab.svc.cluster.local:3306"
         - name: MYSQL_DATABASE
@@ -40,10 +42,26 @@ spec:
               key: admin-password
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
         volumeMounts:
         - mountPath: /var/www/html
           name: nextcloud-data
+        - name: nextcloud-config
+          mountPath: /var/www/html/config/config.php
+          subPath: config.php
       volumes:
       - name: nextcloud-data
         persistentVolumeClaim:
           claimName: nextcloud-pvc
+      - name: nextcloud-config
+        configMap:
+          name: nextcloud-config
+          items:
+          - key: config.php
+            path: config.php

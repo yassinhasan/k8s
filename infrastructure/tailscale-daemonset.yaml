@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tailscale
+  namespace: kube-system
+  labels:
+    app: tailscale
+spec:
+  selector:
+    matchLabels:
+      app: tailscale
+  template:
+    metadata:
+      labels:
+        app: tailscale
+    spec:
+      serviceAccountName: tailscale
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: tailscale
+          image: tailscale/tailscale:stable
+          env:
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-auth
+                  key: TS_AUTHKEY
+            - name: TS_EXTRA_ARGS
+              value: "--accept-routes"
+            - name: TS_ROUTES
+              value: "192.168.1.0/24"
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - SYS_MODULE
+          volumeMounts:
+            - name: tailscale-var-lib
+              mountPath: /var/lib
+            - name: tailscale-run
+              mountPath: /var/run/tailscale
+      volumes:
+        - name: tailscale-var-lib
+          hostPath:
+            path: /var/lib
+            type: Directory
+        - name: tailscale-run
+          hostPath:
+            path: /var/run/tailscale
+            type: DirectoryOrCreate 
